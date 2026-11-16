@@ -1,0 +1,35 @@
+name: Замер скорости
+
+on:
+  workflow_dispatch:
+    inputs:
+      url:
+        description: URL файла (пустое поле — тестовый JPEG)
+        type: string
+        required: false
+
+permissions:
+  contents: read
+
+jobs:
+  speedtest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+      - name: Установка зависимостей
+        run: npm ci
+      - name: Замер скорости
+        env:
+          TARGET_URL: ${{ inputs.url }}
+        run: |
+          if [ -n "$TARGET_URL" ]; then
+            npm start -- "$TARGET_URL"
+          else
+            npm start
+          fi
